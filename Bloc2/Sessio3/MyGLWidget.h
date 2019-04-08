@@ -14,7 +14,9 @@
 
 #define N_VAOs 1
 #define N_instancies 3
-#define DEBUG 0
+#define N_instancies_Patricio 3
+#define N_instancies_Homer 0
+#define DEBUG 1
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core 
 {
@@ -122,7 +124,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 	camera cam;	
 	float angle_inicial;
     // VAO
-    VAO* VAOs;
+    std::vector<VAO> VAOs;
        
     VAO VAO_Terra;
     

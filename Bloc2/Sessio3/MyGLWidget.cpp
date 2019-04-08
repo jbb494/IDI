@@ -25,7 +25,7 @@ void MyGLWidget::initializeGL ()
   glClearColor(0.5, 0.7, 1.0, 1.0); // defineix color de fons (d'esborrat)
   glEnable(GL_DEPTH_TEST);
   
-  VAOs = new VAO[N_VAOs];
+  VAOs = std::vector<VAO> (N_VAOs);
   
   Instancies = new instancia[N_instancies];
   
@@ -194,10 +194,16 @@ void MyGLWidget::creaBuffers ()
    transf_vec[2].translacio = glm::vec3(-2.f, 0.f, -2.f);
    transf_vec[2].rotacio = glm::vec3(0.f, M_PI/2, 0.f);
    transf_vec[2].escalat = glm::vec3(1.f, 1.f, 1.f);
-		
+	
+  /* transf_vec[3].translacio = glm::vec3(-2.f, 3.f, -2.f);
+   transf_vec[3].rotacio = glm::vec3(0.f, M_PI/2, 0.f);
+   transf_vec[3].escalat = glm::vec3(1.f, 1.f, 1.f);	
+   */
 	char const* rutes[N_VAOs];
 	
 	rutes[0] = {"./Models/Patricio.obj"};
+	
+	//rutes[1] = {"./Models/HomerProves.obj"};
 	
 	for(int i = 0; i<N_VAOs; i++)
 	{
@@ -208,9 +214,14 @@ void MyGLWidget::creaBuffers ()
 	
 	creaBuffers_terra(5);
 	//Patricios
-	for(int i = 0; i<N_instancies; i++)
+	for(int i = 0; i<N_instancies_Patricio; i++)
 	{
 		Instancies[i].vao_general = (VAO*)&VAOs[0];	 //Patricio
+		Instancies[i].transf = (transformacio)transf_vec[i];
+	}
+	for(int i = N_instancies_Patricio; i<N_instancies_Homer+N_instancies_Patricio; i++)
+	{
+		Instancies[i].vao_general = (VAO*)&VAOs[1];	 //Homer
 		Instancies[i].transf = (transformacio)transf_vec[i];
 	}
 	//esfera
@@ -224,13 +235,14 @@ void MyGLWidget::creaBuffers ()
 
 	for(int i = 0; i<N_instancies; i++)
 	{				
-
+		std::cout << "PETA1" << std::endl;
+		std::cout << "i: " << i << std::endl;
 		transf_model_ini(Instancies[i], transf_vec[i]);
-		
+		std::cout << "PETA2" << std::endl;
 		glm::vec3 coordMin, coordMax;
 			
 		calcula_vertexs_extrems_transformats(Instancies[i], coordMin, coordMax);
-		
+		std::cout << "PETA3" << std::endl;
 
 		esf_max = vec3MaxOP(esf_max, coordMax);
 
