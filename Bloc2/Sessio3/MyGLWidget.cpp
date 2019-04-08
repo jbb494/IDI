@@ -181,10 +181,8 @@ void MyGLWidget::creaBuffers ()
 {
   // Dades Homer
   // Dos VBOs, un amb posició i l'altre amb color
-	char ruta[90] = "./Models/Patricio.obj";
-
-	transformacio transf_vec[N_VAOs];
-  
+	transformacio transf_vec[N_instancies];
+	
    transf_vec[0].translacio = glm::vec3(2.f, 0.f, 2.f);
    transf_vec[0].rotacio = glm::vec3(0.f, 0.f, 0.f);
    transf_vec[0].escalat = glm::vec3(1.f, 1.f, 1.f);
@@ -196,56 +194,102 @@ void MyGLWidget::creaBuffers ()
    transf_vec[2].translacio = glm::vec3(-2.f, 0.f, -2.f);
    transf_vec[2].rotacio = glm::vec3(0.f, M_PI/2, 0.f);
    transf_vec[2].escalat = glm::vec3(1.f, 1.f, 1.f);
+   		
 
 	for(int i = 0; i<N_VAOs; i++)
 	{
+		char ruta[90] = "./Models/Patricio.obj";
+
 		creaBuffers_model(VAOs[i], ruta);
 		capsa_model_ini(VAOs[i].model, VAOs[i].Capsa);
+
 	}
 	
-	creaBuffers_terra(VAO_Terra, 5);
+	creaBuffers_terra(5);
 	//Patricios
 	for(int i = 0; i<N_instancies; i++)
 	{
-		Instancies[i].vao_general = &VAOs[0];	
-		Instancies[i].transf = transf_vec[i];
+		Instancies[i].vao_general = (VAO*)&VAOs[0];	 //Patricio
+		Instancies[i].transf = (transformacio)transf_vec[i];
 	}
 	//esfera
 	glm::vec3 esf_max, esf_min;
 	
 	esf_max = VAO_Terra.Capsa.Max;
 	
-	std::cout << "Terra Max.x: " << VAO_Terra.Capsa.Max.x << std::endl;
-	
+
 	esf_min = VAO_Terra.Capsa.Min;
+	
 
 	for(int i = 0; i<N_instancies; i++)
 	{				
+
 		transf_model_ini(Instancies[i], transf_vec[i]);
-
-
-		glm::vec3 Mida_Instancia = (Instancies[i].vao_general)->Capsa.Max- (Instancies[i].vao_general)->Capsa.Min;
-
-		glm::vec3 Capsa_Max_real = glm::vec3(Mida_Instancia.x*Instancies[i].transf.escalat.x,Mida_Instancia.y*Instancies[i].transf.escalat.y, (Mida_Instancia.z*Instancies[i].transf.escalat.z))+ Instancies[i].transf.translacio;
-
-		glm::vec3 Capsa_Min_real = glm::vec3(-Mida_Instancia.x*Instancies[i].transf.escalat.x,0.f, (-Mida_Instancia.z*Instancies[i].transf.escalat.z))+ Instancies[i].transf.translacio;
 		
-		esf_max = vec3MaxOP(esf_max, Capsa_Max_real);
-
-		esf_min = vec3MinOP(esf_min, Capsa_Min_real);
+		glm::vec3 coordMin, coordMax;
+			
+		calcula_vertexs_extrems_transformats(Instancies[i], coordMin, coordMax);
 		
-		std::cout << "esf_max.x: " <<esf_max.x << " = " << "Capsa_Max.x: "  << Capsa_Max_real.x << std::endl;
+
+		esf_max = vec3MaxOP(esf_max, coordMax);
+
+		esf_min = vec3MinOP(esf_min, coordMin);
+		
+		if(DEBUG)std::cout << "coordMax.x: "  << coordMax.x << std::endl;
 	}		
 
 	calcul_esfera(esf_min, esf_max);
-
+if(DEBUG){
 	std::cout << "esf_min: " << std::endl << "x: "<< esf_min.x << "y: "<< esf_min.y <<"z: "<< esf_min.z << std::endl; 
 	
 	std::cout << "esf_max: " << std::endl << "x: "<< esf_max.x << "y: "<< esf_max.y <<"z: "<< esf_max.z << std::endl; 
-
-	//std::cout << "Patricio_max_y: " << VAOs[0].Capsa.Max.y << "Patricio_min_y: " << VAOs[0].Capsa.Min.y << std::endl;
+}
 
     glBindVertexArray (0);
+}
+void MyGLWidget::calcula_vertexs_extrems_transformats(const instancia& Instancia_arg, glm::vec3& coordMin, glm::vec3& coordMax)
+{
+
+		glm::vec3 min((Instancia_arg.vao_general)->Capsa.Min);
+		glm::vec3 max ((Instancia_arg.vao_general)->Capsa.Max);
+		
+		std::vector<glm::vec3> vertex_extrem = {glm::vec3(min.x, min.y ,min.z), glm::vec3(max.x, min.y ,min.z), glm::vec3(min.x, max.y ,min.z),
+			 glm::vec3(max.x, max.y ,min.z), glm::vec3(max.x, min.y ,max.z), glm::vec3(min.x, max.y ,max.z), glm::vec3(min.x, min.y ,max.z),
+			  glm::vec3(max.x, max.y ,max.z)};
+		
+		std::vector<double> vec_aux(8*3);
+		
+				
+		 glm::mat4 transform (1.0f);
+				
+	  glm::vec3 cent = glm::vec3((Instancia_arg.vao_general)->Capsa.Centre.x, (Instancia_arg.vao_general)->Capsa.Centre.y - ((Instancia_arg.vao_general)->Capsa.Max.y-(Instancia_arg.vao_general)->Capsa.Min.y)/2 , (Instancia_arg.vao_general)->Capsa.Centre.z);
+
+	  transform = glm::translate(transform, Instancia_arg.transf.translacio);
+
+	  transform = glm::rotate(transform, Instancia_arg.transf.rotacio.x, glm::vec3(1,0,0));
+	  transform = glm::rotate(transform, Instancia_arg.transf.rotacio.y, glm::vec3(0,1,0));
+	  transform = glm::rotate(transform, Instancia_arg.transf.rotacio.z, glm::vec3(0,0,1));
+
+	  transform = glm::scale(transform, Instancia_arg.transf.escalat);
+
+	  transform = glm::translate(transform, -cent);
+	  
+	  
+
+		for(int i = 0; i<8; i++)
+		{			
+			glm::vec4 aux;
+			
+			aux = transform*glm::vec4(vertex_extrem[i],1);
+			
+			vec_aux[i*3] = aux[0];
+			vec_aux[i*3+1] = aux[1];
+			vec_aux[i*3+2] = aux[2];
+			//std::cout << "vec_aux[" << i*3 << "] = " << aux[0] << endl;
+			//std::cout << "vertex_extrem[" << i*3 << "] = " << vertex_extrem[i].x << std::endl;
+		}
+		
+		coord_maxmin(vec_aux,coordMin, coordMax);
 }
 void MyGLWidget::capsa_terra_ini(capsa& c_terra_arg, int mida_terra)
 {
@@ -272,7 +316,7 @@ void MyGLWidget::capsa_model_ini(const Model& m, capsa& c_model)
 }
 
 
-void MyGLWidget::creaBuffers_terra(VAO& VAO_terra , int mida_terra)
+void MyGLWidget::creaBuffers_terra(int mida_terra)
 {
 	 //VAO terra
   glGenVertexArrays(1, &VAO_Terra.vao);
@@ -319,12 +363,9 @@ void MyGLWidget::creaBuffers_terra(VAO& VAO_terra , int mida_terra)
 
 
 
-void MyGLWidget::creaBuffers_model(VAO& VAO_arg , const char ruta[])
+void MyGLWidget::creaBuffers_model(VAO& VAO_arg , char ruta[])
 {
-	char ruta2[80] = "./Models/Patricio.obj";
-	
-	VAO_arg.model.load(ruta2);
-	//VAO_arg.model.load("./Models/Patricio.obj");
+	VAO_arg.model.load(ruta);
 
   // Creació del Vertex Array Object per pintar
   glGenVertexArrays(1, &VAO_arg.vao);
@@ -355,7 +396,11 @@ void  MyGLWidget::transf_model_ini(instancia& Instancia_arg, const transformacio
 	Instancia_arg.transf.escalat = glm::vec3(trans.escalat.x/ mida_y_model, trans.escalat.y/mida_y_model ,trans.escalat.z/mida_y_model );
 	Instancia_arg.transf.translacio = trans.translacio;
 	Instancia_arg.transf.rotacio = trans.rotacio;
-
+if(DEBUG)
+{
+	std::cout << "trans_escalat: " << trans.escalat.x << std::endl;
+	std::cout << "escalat: " << Instancia_arg.transf.escalat.x << std::endl;
+}
 }
 void MyGLWidget::coord_maxmin(std::vector<double> vertices, glm::vec3& vec3_min, glm::vec3& vec3_max)
 {

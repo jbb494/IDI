@@ -14,6 +14,7 @@
 
 #define N_VAOs 1
 #define N_instancies 3
+#define DEBUG 0
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core 
 {
@@ -49,7 +50,13 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 		glm::vec3 translacio;
 		glm::vec3 escalat;
 		glm::vec3 rotacio;
-
+			
+			inline transformacio operator=(transformacio arg) {
+			translacio = arg.translacio;
+			escalat = arg.escalat;
+			rotacio = arg.rotacio;
+			return arg;
+    }
 	};
 	struct VAO
 	{
@@ -86,9 +93,9 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 
   private:
     void creaBuffers ();
-    void creaBuffers_model(VAO& VAO_arg, const char ruta[]);
+    void creaBuffers_model(VAO& VAO_arg, char ruta[]);
     void transf_model_ini(instancia& Instancia_arg, const transformacio& trans);
-    void creaBuffers_terra(VAO& VAO_Model, int mida);
+    void creaBuffers_terra(int mida);
     void carregaShaders ();
     void modelTransform (const instancia& VAOArg);
     void modelTransformTerra ();
@@ -100,6 +107,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 	
 	void calcul_esfera(glm::vec3 punt_min, glm::vec3 punt_max);
 	static void coord_maxmin(std::vector<double> vertices, glm::vec3& vec3_min, glm::vec3& vec3_max);
+	static void calcula_vertexs_extrems_transformats(const instancia&, glm::vec3& coordMin, glm::vec3& coordMax);
 	static glm::vec3 vec3MaxOP(const glm::vec3& vec1, const glm::vec3& vec2);
 	static glm::vec3 vec3MinOP(const glm::vec3& vec1, const glm::vec3& vec2);
 	void calcul_Euler(glm::mat4& View);
