@@ -194,13 +194,14 @@ void MyGLWidget::creaBuffers ()
    transf_vec[2].translacio = glm::vec3(-2.f, 0.f, -2.f);
    transf_vec[2].rotacio = glm::vec3(0.f, M_PI/2, 0.f);
    transf_vec[2].escalat = glm::vec3(1.f, 1.f, 1.f);
-   		
-
+		
+	char const* rutes[N_VAOs];
+	
+	rutes[0] = {"./Models/Patricio.obj"};
+	
 	for(int i = 0; i<N_VAOs; i++)
 	{
-		char ruta[90] = "./Models/Patricio.obj";
-
-		creaBuffers_model(VAOs[i], ruta);
+		creaBuffers_model(VAOs[i], rutes[i]);
 		capsa_model_ini(VAOs[i].model, VAOs[i].Capsa);
 
 	}
@@ -363,7 +364,7 @@ void MyGLWidget::creaBuffers_terra(int mida_terra)
 
 
 
-void MyGLWidget::creaBuffers_model(VAO& VAO_arg , char ruta[])
+void MyGLWidget::creaBuffers_model(VAO& VAO_arg , char const ruta[])
 {
 	VAO_arg.model.load(ruta);
 

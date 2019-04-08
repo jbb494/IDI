@@ -93,7 +93,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 
   private:
     void creaBuffers ();
-    void creaBuffers_model(VAO& VAO_arg, char ruta[]);
+    void creaBuffers_model(VAO& VAO_arg, char const ruta[]);
     void transf_model_ini(instancia& Instancia_arg, const transformacio& trans);
     void creaBuffers_terra(int mida);
     void carregaShaders ();
