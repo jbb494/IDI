@@ -1,6 +1,13 @@
 
  if [[ $1 == "-o" ]]; then
  geany MyGLWidget.h MyGLWidget.cpp&
+ for x in *; do
+ 	if([[ ${x:0:2} == "my" ]]); then
+ 	geany ${x}&
+	fi
+done
+
+
  designer MyForm.ui&
  fi
 
@@ -9,4 +16,3 @@
 	 ./Bloc2_Exemple
 	 fi
  fi 
-
