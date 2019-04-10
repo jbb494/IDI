@@ -1,0 +1,12 @@
+
+ if [[ $1 == "-o" ]]; then
+ geany MyGLWidget.h MyGLWidget.cpp&
+ designer MyForm.ui&
+ fi
+
+ if  [[ $1 == "-m" ]]; then
+	 if make -j5; then
+	 ./Bloc2_Exemple
+	 fi
+ fi 
+
