@@ -1,0 +1,47 @@
+Usage() 
+{
+	echo -e "Usage: \n Setup: -s\n Make/Open: -m NomExecutable\n CreateClass: -cc NomDeLaClase Parent";
+
+}
+
+
+if [[ $1 == "-s" ]]; then
+
+	 for x in *; do
+	 	if([[ ${x:0:2} == "my" ]] || [[ $x == MyGLWidget.h ]] || [[ $x == MyGLWidget.cpp ]]); then
+	 	geany ${x}&
+		fi
+	 done
+ 	designer MyForm.ui&
+ elif  [[ $1 == "-m" ]]; then
+	 if make -j5; then
+		if [[ $# != 2 ]]; then 
+		Usage
+		else
+	 	./$2
+		fi
+       fi
+ elif [[ $1 == "-cc" ]]; then
+	if [[ $# != 3 ]]; then 
+		Usage
+	else
+		Arxiu_h=${2}.h
+		Arxiu_cpp=${2}.cpp
+		touch $Arxiu_h $Arxiu_cpp
+		Aux=$(cat $Arxiu_h)
+		if [[ ${Aux:0:8} == "#include" ]]; then
+			echo "Ja Existeixen Les Classes"
+		
+		else
+			parent=$3
+			nom=$2
+			echo -e "#include <$parent> \n\nclass $nom : public $parent\n{\n\tQ_OBJECT\n\nprivate:\n\n\tpublic:\n\t$nom(QWidget*);\n\n\tpublic slots:\n\n\tsignals:\n\n}\n;" >> $Arxiu_h
+			echo -e "#include "\""$Arxiu_h"\""\n\n$nom::$nom(QWidget* parent) : $parent(parent)\n{\n\n} " >> $Arxiu_cpp
+			geany $Arxiu_cpp $Arxiu_h&
+		fi		
+	fi	
+ else  
+	Usage
+ fi
+
+
