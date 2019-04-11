@@ -10,7 +10,7 @@
 #include "Model/model.h"
 #include <string>
 #include <iostream>
-
+//MODIFICAT
 
 #define N_VAOs 1
 #define N_instancies 3
