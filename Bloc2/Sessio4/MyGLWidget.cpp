@@ -87,11 +87,60 @@ void MyGLWidget::canvia_Prespectiva(bool a) //Slot
 void MyGLWidget::canvia_FactorEscala(int arg) //slot
 {
 	makeCurrent();
-	float s = ((arg)-100.f)/100.f;
 	
-	modifica_factor_escala(s, true);
+	float sc = (float)arg/100.f;
+	
+	for(int i = 0; i<N_instancies; i++)
+	{
+		Instancies[i].transf.escalat = glm::vec3(sc, sc, sc);
+	}
 	
 	update();
+}
+void MyGLWidget::canvia_Psi(int arg) //slot
+{
+	makeCurrent();
+	
+	Psi = arg;
+	
+	viewTransform();
+
+	update();
+
+}
+
+void MyGLWidget::canvia_Theta(int arg) //slot
+{
+	makeCurrent();
+	
+	Theta = arg;
+	
+	viewTransform();
+
+	update();
+
+}
+
+void MyGLWidget::canvia_Color_Terra(int r, int g, int b) //slot
+{
+	
+	makeCurrent();
+	
+	glm::vec3 rgbColor((float)r/255,(float)g/255,(float)b/255);
+	
+	glm::vec3 color[6];
+	color[0] = rgbColor;
+	color[1] = rgbColor;
+	color[2] = rgbColor;
+	color[3] = rgbColor;
+	color[4] = rgbColor;
+	color[5] = rgbColor;
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_terra_color);
+	
+	glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW);
+	update();
+
 }
 
 void MyGLWidget::paintGL () 
@@ -151,32 +200,17 @@ void MyGLWidget::modelTransform (const instancia& Instancia_arg)
   transform = glm::rotate(transform, Instancia_arg.transf.rotacio.y, glm::vec3(0,1,0));
   transform = glm::rotate(transform, Instancia_arg.transf.rotacio.z, glm::vec3(0,0,1));
 
-  transform = glm::scale(transform, Instancia_arg.transf.escalat);
+float mida_y_model = ((Instancia_arg.vao_general)->Capsa.Max.y - (Instancia_arg.vao_general)->Capsa.Min.y);
+glm::vec3 v_aux = glm::vec3(Instancia_arg.transf.escalat.x/ mida_y_model, Instancia_arg.transf.escalat.y/mida_y_model ,Instancia_arg.transf.escalat.z/mida_y_model );
+
+  transform = glm::scale(transform, v_aux);
   transform = glm::translate(transform, -cent);
   
   
   glUniformMatrix4fv(transLoc, 1, GL_FALSE, &transform[0][0]);
+  if(DEBUG)	std::cout << "Y scala: " << v_aux.y << " Instancia_arg.transf.translacio.y: " << Instancia_arg.transf.translacio.y << " mida_y_model: " << mida_y_model << std::endl;
+
   
-  
-}
-void MyGLWidget::modifica_factor_escala(float s, bool slot)
-{
-	float mida_y_model = ((Instancies[0].vao_general)->Capsa.Max.y - (Instancies[0].vao_general)->Capsa.Min.y);
-
-	s = s;
-	
-	float factor_escalat = s*mida_y_model*100;
-
-	if(factor_escalat<Factor_Escalat_MAX && factor_escalat >1)
-	{
-		for(int i = 0; i<N_instancies; i++)
-			{
-				Instancies[i].transf.escalat = glm::vec3(s);
-			}
-
-		int ret = (int)factor_escalat;
-		if(slot == false)emit escalat(ret);
-	}
 }
 
 
@@ -204,15 +238,14 @@ void MyGLWidget::resizeGL (int w, int h)
 void MyGLWidget::keyPressEvent(QKeyEvent* event) 
 {
   makeCurrent();
+  float aux = Instancies[0].transf.escalat.x*100;
   switch (event->key()) {
     case Qt::Key_S: { // escalar a més gran
-		modifica_factor_escala(0.05, false);
-
+		escalat(aux+10);
       break;
     }
     case Qt::Key_D: { // escalar a més petit
-		modifica_factor_escala(-0.05, false);
-
+		escalat(aux-10);
       break;
     case Qt::Key_R:{
 		for(int i = 0; i<N_instancies; i++)
@@ -243,11 +276,11 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
 void MyGLWidget::mouseMoveEvent(QMouseEvent *e) {
 	makeCurrent();
 	
-	if(e->x() > x_ant) Psi -= 0.03;
-	else if(e->x() < x_ant) Psi += 0.03;
+	if(e->x() > x_ant) psi((Psi+5+360)%360);
+	else if(e->x() < x_ant) psi((Psi-5+360)%360);
 	
-	if(e->y() > y_ant) Theta -= 0.03;
-	else if(e->y() < y_ant) Theta += 0.03;
+	if(e->y() > y_ant) theta((Theta-5+360)%360);
+	else if(e->y() < y_ant) theta((Theta+5+360)%360);
 	
 	x_ant = e->x();
 	y_ant = e->y();
@@ -289,7 +322,7 @@ void MyGLWidget::creaBuffers ()
 
 	}
 	
-	creaBuffers_terra(5);
+	creaBuffers_terra(5, glm::vec3(1, 1, 1));
 	//Patricios
 	for(int i = 0; i<N_instancies_Patricio; i++)
 	{
@@ -316,7 +349,7 @@ void MyGLWidget::creaBuffers ()
 		transf_model_ini(Instancies[i], transf_vec[i]);
 
 		glm::vec3 coordMin, coordMax;
-			
+		
 		calcula_vertexs_extrems_transformats(Instancies[i], coordMin, coordMax);
 
 		esf_max = vec3MaxOP(esf_max, coordMax);
@@ -324,6 +357,7 @@ void MyGLWidget::creaBuffers ()
 		esf_min = vec3MinOP(esf_min, coordMin);
 		
 		if(DEBUG)std::cout << "coordMax.x: "  << coordMax.x << std::endl;
+		
 	}		
 
 	calcul_esfera(esf_min, esf_max);
@@ -358,7 +392,10 @@ void MyGLWidget::calcula_vertexs_extrems_transformats(const instancia& Instancia
 	  transform = glm::rotate(transform, Instancia_arg.transf.rotacio.y, glm::vec3(0,1,0));
 	  transform = glm::rotate(transform, Instancia_arg.transf.rotacio.z, glm::vec3(0,0,1));
 
-	  transform = glm::scale(transform, Instancia_arg.transf.escalat);
+float mida_y_model = ((Instancia_arg.vao_general)->Capsa.Max.y - (Instancia_arg.vao_general)->Capsa.Min.y);
+glm::vec3 v_aux = glm::vec3(Instancia_arg.transf.escalat.x/ mida_y_model, Instancia_arg.transf.escalat.y/mida_y_model ,Instancia_arg.transf.escalat.z/mida_y_model );
+
+	  transform = glm::scale(transform, v_aux);
 
 	  transform = glm::translate(transform, -cent);
 	  
@@ -404,9 +441,10 @@ void MyGLWidget::capsa_model_ini(const Model& m, capsa& c_model)
 }
 
 
-void MyGLWidget::creaBuffers_terra(int mida_terra)
+void MyGLWidget::creaBuffers_terra(int mida_terra, glm::vec3 rgbColor)
 {
 	 //VAO terra
+  
   glGenVertexArrays(1, &VAO_Terra.vao);
   glBindVertexArray(VAO_Terra.vao);
 
@@ -420,12 +458,12 @@ void MyGLWidget::creaBuffers_terra(int mida_terra)
   
   
   glm::vec3 color[6];
-  color[0] = glm::vec3(0.5,0.2,1);
-  color[1] = glm::vec3(0.5,0.2,1);
-  color[2] = glm::vec3(0.5,0.2,1);
-  color[3] = glm::vec3(0.5,0.2,1);
-  color[4] = glm::vec3(0.5,0.2,1);
-  color[5] = glm::vec3(0.5,0.2,1);
+  color[0] = rgbColor;
+  color[1] = rgbColor;
+  color[2] = rgbColor;
+  color[3] = rgbColor;
+  color[4] = rgbColor;
+  color[5] = rgbColor;
   
   
   GLuint VBO_Terra[2];
@@ -437,6 +475,8 @@ void MyGLWidget::creaBuffers_terra(int mida_terra)
   // Activem l'atribut vertexLoc
   glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(vertexLoc);
+
+	vbo_terra_color = VBO_Terra[1];
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO_Terra[1]);
   glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW);
@@ -480,8 +520,7 @@ void MyGLWidget::creaBuffers_model(VAO& VAO_arg , char const ruta[])
 }
 void  MyGLWidget::transf_model_ini(instancia& Instancia_arg, const transformacio& trans)
 {
-	float mida_y_model = ((Instancia_arg.vao_general)->Capsa.Max.y - (Instancia_arg.vao_general)->Capsa.Min.y);
-	Instancia_arg.transf.escalat = glm::vec3(trans.escalat.x/ mida_y_model, trans.escalat.y/mida_y_model ,trans.escalat.z/mida_y_model );
+	Instancia_arg.transf.escalat = trans.escalat;
 	Instancia_arg.transf.translacio = trans.translacio;
 	Instancia_arg.transf.rotacio = trans.rotacio;
 if(DEBUG)
@@ -619,10 +658,12 @@ void MyGLWidget::calcul_Euler(glm::mat4& View)
 {
 	float d = glm::distance(cam.OBS, cam.VRP);
 
+	float DegreesToRad = 2.f*(float)M_PI/360.f;
+
   View = glm::translate(View, glm::vec3(0.f, 0.f, -1*d));
   View = glm::rotate(View, 0.f, glm::vec3(0,0,1));
-  View = glm::rotate(View, Theta, glm::vec3(1,0,0));
-  View = glm::rotate(View, Psi, glm::vec3(0,1,0));
+  View = glm::rotate(View, Theta*DegreesToRad, glm::vec3(1,0,0));
+  View = glm::rotate(View, Psi*DegreesToRad, glm::vec3(0,1,0));
 
   View = glm::translate(View, glm::vec3(-1*cam.VRP.x, -1*cam.VRP.y, -1*cam.VRP.z)); 
 }

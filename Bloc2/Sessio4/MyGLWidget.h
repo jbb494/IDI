@@ -98,14 +98,19 @@ public slots:
 	void canvia_Personatges(bool);
 	void canvia_Prespectiva(bool);
 	void canvia_FactorEscala(int);
+	void canvia_Psi(int);
+	void canvia_Theta(int);
+	void canvia_Color_Terra(int r, int g, int b);
 signals:
 	void escalat(int);
+	void psi(int);
+	void theta(int);
 
   private:
     void creaBuffers ();
     void creaBuffers_model(VAO& VAO_arg, char const ruta[]);
     void transf_model_ini(instancia& Instancia_arg, const transformacio& trans);
-    void creaBuffers_terra(int mida);
+    void creaBuffers_terra(int mida, glm::vec3 rgbColor);
     void carregaShaders ();
     void modelTransform (const instancia& VAOArg);
     void modelTransformTerra ();
@@ -121,7 +126,6 @@ signals:
 	static glm::vec3 vec3MaxOP(const glm::vec3& vec1, const glm::vec3& vec2);
 	static glm::vec3 vec3MinOP(const glm::vec3& vec1, const glm::vec3& vec2);
 	void calcul_Euler(glm::mat4& View);
-	void modifica_factor_escala(float s, bool slot);
     // attribute locations
     GLuint vertexLoc, colorLoc;
     // uniform locations
@@ -135,6 +139,7 @@ signals:
     std::vector<VAO> VAOs;
        
     VAO VAO_Terra;
+    GLuint vbo_terra_color;
     
     //Instancies
     instancia* Instancies;
@@ -143,8 +148,8 @@ signals:
 
 
 	//Angles Euler    //
-    float Theta;
-    float Psi;
+    int Theta;
+    int Psi;
     
     float x_ant;
     float y_ant;
