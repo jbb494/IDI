@@ -45,6 +45,10 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     void modelTransformTerra ();
     void modelTransformPatricio ();
     void calculaCapsaModel ();
+    void modificaFocus();
+    void inicialitzaFocus();
+    //Matrius
+    glm::mat4 mat4view;
 
     // VAO names
     GLuint VAO_Patr;
@@ -54,10 +58,11 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     // Viewport
     GLint ample, alt;
     // uniform locations
-    GLuint transLoc, projLoc, viewLoc;
+    GLuint transLoc, projLoc, viewLoc, posFocusLoc, llumAmbientLoc, colFocusLoc;
     // attribute locations
     GLuint vertexLoc, normalLoc, matambLoc, matdiffLoc, matspecLoc, matshinLoc;
-
+    //Focus
+    glm::vec3 vec3colFocus, vec3posFocus, vec3llumAmbient;
     // model
     Model patr;
     // paràmetres calculats a partir de la capsa contenidora del model

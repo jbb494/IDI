@@ -22,17 +22,38 @@ void MyGLWidget::initializeGL ()
 
   glClearColor(0.5, 0.7, 1.0, 1.0); // defineix color de fons (d'esborrat)
   glEnable(GL_DEPTH_TEST);
-  carregaShaders();
+  carregaShaders();  
+  inicialitzaFocus();
   createBuffersPatricio();
   createBuffersTerraIParet();
 
   iniEscena();
   iniCamera();
 }
+void MyGLWidget::inicialitzaFocus()
+{
+  vec3colFocus =glm::vec3(0.8, 0.8, 0.8);
+  vec3llumAmbient =glm::vec3(0.2, 0.2, 0.2);
+  vec3posFocus =glm::vec3(1, 0, 1);  // en SCA
+  modificaFocus();
+
+}
+void MyGLWidget::modificaFocus()
+{
+  glUniform3fv ( colFocusLoc, 1, &vec3colFocus[0] ); 
+  glUniform3fv ( llumAmbientLoc, 1, &vec3llumAmbient[0]);
+  glUniform3fv ( posFocusLoc, 1, &vec3posFocus[0] );
+
+}
 
 void MyGLWidget::iniEscena ()
 {
   radiEsc = sqrt(3);  
+  mat4view = glm::mat4(1.f);  // Matriu de posició i orientació
+  mat4view = glm::translate(mat4view , glm::vec3(0, 0, -2*radiEsc));
+  mat4view = glm::rotate(mat4view, -angleY, glm::vec3(0, 1, 0));
+  viewTransform ();
+  
 }
 
 void MyGLWidget::iniCamera ()
@@ -114,11 +135,11 @@ void MyGLWidget::projectTransform ()
 
 void MyGLWidget::viewTransform ()
 {
-  glm::mat4 View;  // Matriu de posició i orientació
-  View = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -2*radiEsc));
-  View = glm::rotate(View, -angleY, glm::vec3(0, 1, 0));
 
-  glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
+  mat4view = glm::mat4(1.f);  // Matriu de posició i orientació
+  mat4view = glm::translate(mat4view , glm::vec3(0, 0, -2*radiEsc));
+  mat4view = glm::rotate(mat4view, -angleY, glm::vec3(0, 1, 0));
+  glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &mat4view[0][0]);
 }
 
 void MyGLWidget::keyPressEvent(QKeyEvent* event) 
@@ -130,6 +151,21 @@ void MyGLWidget::keyPressEvent(QKeyEvent* event)
       projectTransform ();
       break;
     }
+    case Qt::Key_K: {
+     vec3posFocus = glm::vec3(vec3posFocus[0]+0.25, vec3posFocus[1], vec3posFocus[2]);  
+     modificaFocus();
+    break;
+}
+    case Qt::Key_J: {
+     vec3posFocus = glm::vec3(vec3posFocus[0]-0.25, vec3posFocus[1], vec3posFocus[2]);  
+     modificaFocus();
+    break;
+}
+    case Qt::Key_F: {
+    vec3posFocus = glm::vec3(mat4view * glm::vec4(vec3posFocus, 1.f)); 
+    modificaFocus();
+    break;
+}
     default: event->ignore(); break;
   }
   update();
@@ -391,6 +427,9 @@ void MyGLWidget::carregaShaders()
   transLoc = glGetUniformLocation (program->programId(), "TG");
   projLoc = glGetUniformLocation (program->programId(), "proj");
   viewLoc = glGetUniformLocation (program->programId(), "view");
+  posFocusLoc = glGetUniformLocation (program->programId(), "posFocus");
+  llumAmbientLoc = glGetUniformLocation (program->programId(), "llumAmbient");
+  colFocusLoc = glGetUniformLocation (program->programId(), "colFocus");
 }
 
 
