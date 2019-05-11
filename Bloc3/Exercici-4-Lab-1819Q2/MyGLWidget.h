@@ -35,48 +35,54 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
     virtual void mouseMoveEvent (QMouseEvent *event);
 
   private:
-	
-    void createBuffersPatricio ();
-	void createBuffersTerraIParet ();
+    void creaBuffersPatricio ();
+    void creaBuffersTerra ();
+    void creaBuffersArbre ();
     void carregaShaders ();
-    void iniEscena ();
-    void iniCamera ();
     void projectTransform ();
     void viewTransform ();
     void modelTransformTerra ();
     void modelTransformPatricio ();
+    void modelTransformArbre (float anglegir);
     void calculaCapsaModel ();
-    void modificaFocus();
-    void inicialitzaFocus();
-    //<<>>
-    //Matrius
-    glm::mat4 mat4view;
-
+    void iniEscena ();
+    void iniCamera ();
+	void initializeUniformsFocus();
+//<<>>
+	public slots:
+	void canviaFocus(QString);
+	signals:
+	void seguentFocus();
+private:
     // VAO names
-    GLuint VAO_Patr;
-    GLuint VAO_Terra;
+    GLuint VAO_Patr, VAO_Terra, VAO_Arbre;
     // Program
     QOpenGLShaderProgram *program;
-    // Viewport
-    GLint ample, alt;
     // uniform locations
-    GLuint transLoc, projLoc, viewLoc, posFocusLoc, llumAmbientLoc, colFocusLoc;
+    GLuint transLoc, projLoc, viewLoc, colFocusLoc, posFocusLoc, llumAmbientLoc;
     // attribute locations
     GLuint vertexLoc, normalLoc, matambLoc, matdiffLoc, matspecLoc, matshinLoc;
-    //Focus
-    glm::vec3 vec3colFocus, vec3posFocus, vec3llumAmbient;
+
+    GLint ample, alt;
+
     // model
     Model patr;
     // paràmetres calculats a partir de la capsa contenidora del model
-    glm::vec3 centrePatr;
-    float escala;
-    // radi de l'escena
-    float radiEsc;
+    glm::vec3 centreBasePatr;
+    float escalaPat, escalaArbre;
+
+	glm::mat4 View;
+    glm::vec3 centreEsc;
+    float radiEsc, ra;
 
     typedef  enum {NONE, ROTATE} InteractiveAction;
     InteractiveAction DoingInteractive;
     int xClick, yClick;
-    float angleY;
-    bool perspectiva;
+    float angleX, angleY;
+    float anglegirArbre;
+
+	glm::vec3 colFocus, posFocus, llumAmbient;
+	QString Estat;
+
 };
 

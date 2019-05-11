@@ -14,7 +14,6 @@ uniform vec3 posFocus;
 uniform vec3 llumAmbient; 
 uniform vec3 colFocus ; 
 
-in vec3 fcolor;
 out vec4 FragColor;
 
 vec3 Lambert (vec3 NormSCO, vec3 L) 
@@ -36,7 +35,6 @@ vec3 Phong (vec3 NormSCO, vec3 L, vec4 vertSCO)
 
     // Inicialitzem color a Lambert
     vec3 colRes = Lambert (NormSCO, L);
-
     // Calculem R i V
     if ((dot(NormSCO,L) < 0) || (matshi == 0))
       return colRes;  // no hi ha component especular
@@ -44,7 +42,7 @@ vec3 Phong (vec3 NormSCO, vec3 L, vec4 vertSCO)
     vec3 R = reflect(-L, NormSCO); // equival a: 2.0*dot(NormSCO,L)*NormSCO - L;
     vec3 V = normalize(-vertSCO.xyz); // perquè la càmera està a (0,0,0) en SCO
 
-    if (dot(R, V) < 0)
+    if (dot(R, V) < 0 )
       return colRes;  // no hi ha component especular
     
     float shine = pow(max(0.0, dot(R, V)), matshi);
@@ -58,7 +56,8 @@ void main()
 	vec3 normalNormal = matNormalInvers * norm;
 	L = normalize(L);
 	normalNormal = normalize(normalNormal );
-	vec3 a;
+	vec3 a; 
 	a = Phong(normalNormal, L, vec4(coordSCO, 1.0));
-	FragColor = vec4(a,1);	
+	FragColor = vec4(a,1.0);	
+	//FragColor = vec4(matdif, 1);
 }

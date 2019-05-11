@@ -25,12 +25,9 @@ uniform mat4 TG;
 uniform vec3 posFocus; 
 uniform vec3 llumAmbient; 
 uniform vec3 colFocus ; 
-//Valors per als components que necessitem dels focus de llum
-//vec3 colFocus = vec3(0.8, 0.8, 0.8);
-//vec3 llumAmbient = vec3(0.2, 0.2, 0.2);
-//vec3 posFocus = vec3(1, 0, 1);  // en SCA
 
-out vec3 fcolor;
+//Valors per als components que necessitem dels focus de llum
+
 
 void main()
 {
@@ -40,8 +37,9 @@ void main()
 	matdif = matdiff;
 	matspe = matspec;
 	matshi = matshin;
-    mat4 matNormal = view * TG;
-    matNormalInvers = inverse (transpose (mat3 (matNormal)));
-    posF = (view * vec4(posFocus , 1.0)).xyz;
-    gl_Position = proj * matNormal * vec4 (vertex, 1.0);
+
+	mat4 matNormal = view * TG;
+	matNormalInvers = inverse (transpose (mat3 (matNormal)));
+	posF = posFocus; 
+	gl_Position = proj * matNormal * vec4 (vertex, 1.0);
 }
