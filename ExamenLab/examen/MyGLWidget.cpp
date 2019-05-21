@@ -213,9 +213,12 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent *e)
 		viewTransform ();
 	}else if(DoingInteractive == ZOOM)
 	{
-		Zoom += (e->y() - yClick) * 0.01;
+		float quant = (e->y() - yClick)/100.f;
+		Zoom += quant;
+		float aux = Zoom*100;
+		emit canviaSlider((int) aux);
 		projectTransform();
-M
+
 	}
 
 	xClick = e->x();
@@ -448,3 +451,12 @@ void MyGLWidget::carregaShaders()
 	viewLoc = glGetUniformLocation (program->programId(), "view");
 }
 
+void MyGLWidget::ferZoom(int quant)
+{
+	makeCurrent ();
+
+	float aux = quant/100.f;
+	Zoom = aux;	
+	projectTransform();
+	update ();
+}

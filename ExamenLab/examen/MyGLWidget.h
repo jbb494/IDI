@@ -46,7 +46,15 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 		void modelTransformPatricio ();
 		void calculaCapsaModel ();
 		void modelTransformPatricio2 ();
+
+		signals:
+		void canviaSlider(int);
+
+		public slots:
+		void ferZoom(int);
 		//<<>>
+		
+		private:
 		// VAO names
 		GLuint VAO_Patr;
 		GLuint VAO_Terra;
