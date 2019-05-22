@@ -87,20 +87,29 @@ View = glm::translate(glm::vec3(1.f), glm::vec3(0.f, 0.f, -1*d));
 ```
 ```c
 View = glm::rotate(View, Phi, glm::vec3(0,0,1)); 
-``` \hfill  //Phi  = $\phi$
+``` 
+//Phi  = $\phi$
 
 ```c
 View = glm::rotate(View, Theta, glm::vec3(1,0,0)); 
-``` \hfill  //Theta  = $\theta$
+``` 
+//Theta  = $\theta$
 
 ```c
 View = glm::rotate(View, Psi, glm::vec3(0,1,0)); 
-``` \hfill  //Psi  = $\psi$
+``` 
+//Psi  = $\psi$
 
 ```c
 View = glm::translate(View, glm::vec3(-1*VRP.x, -1*VRP.y, -1*VRP.z)); 
 ```
 \pagebreak
+
+##View Transform (lookAt)
+
+```c
+View = glm::lookAt(OBS, VRP, up);
+```
 
 ##Resize
 
@@ -120,8 +129,40 @@ if(ra < 1)
 #Shaders
 
 ##Càlcul de color al Vertex Shader	
+
+Uniforms i variables IN / OUT:
+
 ```c
-mat3 matNormalInvers = inverse (transpose (mat3 (view * TG)));
+in vec3 vertex;
+in vec3 normal;
+
+in vec3 matamb;
+in vec3 matdiff;
+in vec3 matspec;
+in float matshin;
+
+uniform mat4 index;
+uniform mat4 proj;
+uniform mat4 view;
+uniform mat4 TG;
+
+// Valors per als components que necessitem dels focus de llum
+//vec3 colFocus = vec3(0.8, 0.8, 0.8);
+vec3 colFocus = vec3(0, 1, 1);
+vec3 llumAmbient = vec3(0.2, 0.2, 0.2);
+vec3 posFocus = vec3(1, 1, 1); 
+
+out vec3 fcolor;
+```
+
+Dintre el main del vertex shader:
+
+
+```c
+mat4 matNormal = view * TG;
+```
+```c
+mat3 matNormalInvers = inverse (transpose (mat3 (matNormal)));
 ```
 ```c
 vec3 coordSCO = (matNormal * vec4 ( vertex, 1.0)).xyz ;
@@ -181,3 +222,15 @@ a = Phong(normalNormal, L, vec4(coordSCO, 1.0));
 FragColor = vec4(a,1);	
 ```
 
+## Uniforms
+
+```c
+void glUniform3fv(GLint location, GLsizei count, const GLfloat *value); 
+```
+//count = 1 
+
+```c
+void glUniformMatrix4fv(GLint location, GLsizei count, 	GLboolean transpose,
+const GLfloat *value);
+``` 
+//count = 1
