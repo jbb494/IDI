@@ -86,14 +86,17 @@ float d = glm::distance(OBS, VRP);
 View = glm::translate(glm::vec3(1.f), glm::vec3(0.f, 0.f, -1*d));
 ```
 ```c
-View = glm::rotate(View, Phi, glm::vec3(0,0,1));
-```
+View = glm::rotate(View, Phi, glm::vec3(0,0,1)); 
+``` \hfill  //Phi  = $\phi$
+
 ```c
-View = glm::rotate(View, Theta, glm::vec3(1,0,0));
-```
+View = glm::rotate(View, Theta, glm::vec3(1,0,0)); 
+``` \hfill  //Theta  = $\theta$
+
 ```c
-View = glm::rotate(View, Psi, glm::vec3(0,1,0));
-```
+View = glm::rotate(View, Psi, glm::vec3(0,1,0)); 
+``` \hfill  //Psi  = $\psi$
+
 ```c
 View = glm::translate(View, glm::vec3(-1*VRP.x, -1*VRP.y, -1*VRP.z)); 
 ```
